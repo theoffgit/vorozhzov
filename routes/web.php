@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\JsonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/create', [JsonController::class, 'create'])
+       ->name('json.create');
+
+Route::middleware('auth:sanctum')->match(['get','post'], '/store', [JsonController::class, 'store'])
+        ->name('json.store');
+

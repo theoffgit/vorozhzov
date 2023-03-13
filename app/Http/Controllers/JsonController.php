@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Json;
+use Illuminate\Support\Facades\Validator;
 
 
 class JsonController extends Controller
@@ -48,4 +49,44 @@ class JsonController extends Controller
         return response(json_encode($resp), 200)
                    ->header('Content-Type', 'application/json');
     }
+
+    public function list(): View
+    {
+        $jsons = Json::paginate(10);
+        return view('json.list', compact('jsons'));
+    }
+    
+
+    public function read(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => ['required', 'exists:jsons,id'],
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('json.list')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        $json = Json::where('id', '=', $request->id)->first();
+        return view('json.read', ['json'=>$json]);
+    }
+
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'id' => ['required', 'exists:jsons,id'],
+        ]);
+     
+        $delete = Json::where('id', '=', $request->id)
+                        ->where('user_id', '=', Auth::user()->id)
+                        ->delete();
+        $resp = array();
+        $resp['message'] = $delete;
+        return response(json_encode($resp), 200)
+            ->header('Content-Type', 'application/json');
+    }
+
 }
+

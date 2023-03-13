@@ -25,3 +25,12 @@ Route::get('/create', [JsonController::class, 'create'])
 Route::middleware('auth:sanctum')->match(['get','post'], '/store', [JsonController::class, 'store'])
         ->name('json.store');
 
+Route::get('/list', [JsonController::class, 'list'])
+        ->name('json.list');
+
+Route::get('/read', [JsonController::class, 'read'])
+        ->name('json.read');
+
+Route::middleware('auth:sanctum')->match(['get','post'], '/delete', [JsonController::class, 'delete'])
+        ->name('json.delete');
+

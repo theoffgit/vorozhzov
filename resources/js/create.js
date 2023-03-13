@@ -3,20 +3,20 @@ window.addEventListener("load", function(){
 
     if (document.getElementById('button') !== null) {
         const btn = document.getElementById('button');
-    
+
         btn.addEventListener("click", async function () {
             const token = document.getElementById('usertoken').value;
             const data = document.getElementById('data').value;
             const reqType = document.getElementById('reqType').checked;
             const csrf = document.getElementsByName('_token')[0].value;
-    
+
             let resp;
             if(document.getElementById('reqType').checked){  // POST
                 const body = {
                     _token: csrf,
                     data: data,
                 };
-    
+
                 resp = await fetch('/store', {
                     method: 'POST',
                     headers: {
@@ -45,10 +45,10 @@ window.addEventListener("load", function(){
                 console.log(respJson);
                 const elem = document.getElementById("message");
                 elem.innerHTML = respJson.message;
-                elem.append('::::'+JSON.stringify(respJson));                
+                elem.append('::::'+JSON.stringify(respJson));
             }else{
                 elem.innerHTML = 'Something wrong!';
             }
         });
-    }    
+    }
 });

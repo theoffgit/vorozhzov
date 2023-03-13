@@ -7,22 +7,20 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Testing\Fluent\AssertableJson;
+use App\Models\Json;
 
-
-class JsonStoreTest extends TestCase
+class DeleteTest extends TestCase
 {
     public function test_whithout_bearer()
     {
-        $response = $this->getJson('/store');
+        $response = $this->getJson('/delete');
         $response->assertStatus(401); // unauthorized
 
-        $response = $this->postJson('/store');
+        $response = $this->postJson('/delete');
         $response->assertStatus(401); // unauthorized
     }
 
-    public function test_without_data()
+    public function test_without_id()
     {
         $user = User::all()->random();
 
@@ -36,70 +34,76 @@ class JsonStoreTest extends TestCase
         $response = $this
                       ->withHeaders(['Authorization'=>'Bearer '.$token,
                                    'Accept' => 'application/json'])
-                      ->postJson('/store');
+                      ->postJson('/delete');
 
         $response->assertStatus(422);
         $response->assertJson([
-           'message' => 'The data field is required.',
+           'message' => 'The id field is required.',
         ]);
 
         $response = $this
             ->withHeaders(['Authorization'=>'Bearer '.$token,
                 'Accept' => 'application/json'])
-            ->getJson('/store');
+            ->getJson('/delete');
 
         $response->assertStatus(422);
         $response->assertJson([
-            'message' => 'The data field is required.',
+            'message' => 'The id field is required.',
         ]);
     }
 
-    public function test_store_success()
+    public function test_delete_wrong_user()
     {
         $user = User::all()->random();
+        $json = Json::where('user_id', '<>', $user->id)->first();
 
         Artisan::call('gettoken', [
             'email' => $user->email,
             'password' => 'password',
         ]);
         $token = Artisan::output();
-        echo $token."\n";
 
         $response = $this
                         ->withHeaders(['Authorization'=>'Bearer '.$token,
                             'Accept' => 'application/json'])
-                        ->postJson('/store', ['data' => json_encode($user)]);
+                        ->postJson('/delete', ['id' => $json->id]);
 
-                        $response->assertStatus(200);
+        $response->assertStatus(200);
         $response->assertJson([
-            'message' => 'Success!',
+            'message' => 0,
         ]);
 
-        $response->assertJsonStructure([
-            'message',
-            'id',
-            'alltime',
-            'dbtime',
-            'memory',
-        ]);
-
+        
         $response = $this
                         ->withHeaders(['Authorization'=>'Bearer '.$token,
                             'Accept' => 'application/json'])
-                        ->getJson('/store?data='.urlencode(json_encode($user)));
+                        ->getJson('/delete?id='.$json->id);
 
             $response->assertStatus(200);
             $response->assertJson([
-                'message' => 'Success!',
-            ]);
-
-        $response->assertJsonStructure([
-            'message',
-            'id',
-            'alltime',
-            'dbtime',
-            'memory',
-        ]);
+                'message' => '0',
+            ]);        
     }
 
+    public function test_delete_success()
+    {
+        $json = Json::all()->random();
+        $user = User::where('id', '=', $json->user_id)->first();        
+
+        Artisan::call('gettoken', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+        $token = Artisan::output();
+
+        $response = $this
+                        ->withHeaders(['Authorization'=>'Bearer '.$token,
+                            'Accept' => 'application/json'])
+                        ->postJson('/delete', ['id' => $json->id]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'message' => 1,
+        ]); 
+    }
 }

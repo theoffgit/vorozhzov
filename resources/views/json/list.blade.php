@@ -26,6 +26,7 @@
                 <td>{{ $json->data }}</td>
                 <td><a href="{{ route('json.read') }}?id={{ $json->id }}" target=_blank>read</a></td>                
                 <td><a class="delete" href="{{ route('json.delete') }}?id={{ $json->id }}">delete</a></td>
+                <td><a href="{{ route('json.updateform') }}?id={{ $json->id }}" target=_blank>update</a></td>
             </tr>
         @endforeach
     </table>

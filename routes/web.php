@@ -34,3 +34,9 @@ Route::get('/read', [JsonController::class, 'read'])
 Route::middleware('auth:sanctum')->match(['get','post'], '/delete', [JsonController::class, 'delete'])
         ->name('json.delete');
 
+Route::get('/updateform', [JsonController::class, 'updateform'])
+        ->name('json.updateform');
+
+Route::middleware('auth:sanctum')->match(['get','post'], '/update', [JsonController::class, 'update'])
+        ->name('json.update');
+

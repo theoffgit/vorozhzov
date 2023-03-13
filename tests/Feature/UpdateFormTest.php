@@ -2,21 +2,26 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Json;
 
 class UpdateFormTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function test_example()
+    public function test_update_form_without_id()
     {
-        $response = $this->get('/');
+        $response = $this->get('/updateform');
+
+        $response->assertRedirectToRoute('json.list');
+    }
+
+
+    public function test_update_form_success()
+    {
+        $json = Json::all()->random();
+
+        $response = $this->get('/updateform?id='.$json->id);
 
         $response->assertStatus(200);
+        $response->assertSee('update form');
     }
 }
